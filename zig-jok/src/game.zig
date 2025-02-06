@@ -35,7 +35,11 @@ pub fn init(ctx: jok.Context) !void {
     std.log.info("ratio: {}, scale: {}", .{ ratio, scale });
     try ctx.renderer().setScale(scale * ratio, scale * ratio);
 
-    var args = std.process.args();
+    var args = switch (builtin.os.tag) {
+        .windows => try std.process.argsWithAllocator(std.heap.c_allocator),
+        else => std.process.args(),
+    };
+
     _ = args.skip();
     if (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "v1")) {
